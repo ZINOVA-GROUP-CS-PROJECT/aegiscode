@@ -14,6 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_endpoints: {
+        Row: {
+          auth_mechanism: string | null
+          auth_required: boolean
+          created_at: string
+          exposure: string
+          handler: string | null
+          id: string
+          method: string
+          notes: string | null
+          parameters: Json
+          path: string
+          risk_level: string
+          risks: Json
+          scan_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth_mechanism?: string | null
+          auth_required?: boolean
+          created_at?: string
+          exposure?: string
+          handler?: string | null
+          id?: string
+          method?: string
+          notes?: string | null
+          parameters?: Json
+          path: string
+          risk_level?: string
+          risks?: Json
+          scan_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          auth_mechanism?: string | null
+          auth_required?: boolean
+          created_at?: string
+          exposure?: string
+          handler?: string | null
+          id?: string
+          method?: string
+          notes?: string | null
+          parameters?: Json
+          path?: string
+          risk_level?: string
+          risks?: Json
+          scan_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_endpoints_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_tests: {
+        Row: {
+          category: string
+          classification: string
+          created_at: string
+          endpoint_id: string | null
+          expected: string | null
+          id: string
+          name: string
+          observed: string | null
+          outcome: string
+          remediation: string | null
+          request_example: string | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          classification?: string
+          created_at?: string
+          endpoint_id?: string | null
+          expected?: string | null
+          id?: string
+          name: string
+          observed?: string | null
+          outcome?: string
+          remediation?: string | null
+          request_example?: string | null
+          severity?: string | null
+          user_id?: string
+        }
+        Update: {
+          category?: string
+          classification?: string
+          created_at?: string
+          endpoint_id?: string | null
+          expected?: string | null
+          id?: string
+          name?: string
+          observed?: string | null
+          outcome?: string
+          remediation?: string | null
+          request_example?: string | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_tests_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "api_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       binary_analyses: {
         Row: {
           architecture: string | null
@@ -78,6 +196,93 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ci_integrations: {
+        Row: {
+          block_on_exploitable: boolean
+          block_on_secrets: boolean
+          block_on_severity: string
+          created_at: string
+          default_branch: string
+          enabled: boolean
+          id: string
+          provider: string
+          repository: string
+          scan_pull_requests: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          block_on_exploitable?: boolean
+          block_on_secrets?: boolean
+          block_on_severity?: string
+          created_at?: string
+          default_branch?: string
+          enabled?: boolean
+          id?: string
+          provider?: string
+          repository: string
+          scan_pull_requests?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          block_on_exploitable?: boolean
+          block_on_secrets?: boolean
+          block_on_severity?: string
+          created_at?: string
+          default_branch?: string
+          enabled?: boolean
+          id?: string
+          provider?: string
+          repository?: string
+          scan_pull_requests?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dast_runs: {
+        Row: {
+          created_at: string
+          findings: Json
+          id: string
+          probes: Json
+          runtime_notes: string | null
+          status: string
+          summary: Json | null
+          target_description: string | null
+          target_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          findings?: Json
+          id?: string
+          probes?: Json
+          runtime_notes?: string | null
+          status?: string
+          summary?: Json | null
+          target_description?: string | null
+          target_url: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          findings?: Json
+          id?: string
+          probes?: Json
+          runtime_notes?: string | null
+          status?: string
+          summary?: Json | null
+          target_description?: string | null
+          target_url?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       dependencies: {
         Row: {
@@ -193,6 +398,8 @@ export type Database = {
       }
       findings: {
         Row: {
+          aegis_risk_factors: Json | null
+          aegis_risk_score: number | null
           attack_paths: Json
           created_at: string
           cvss_score: number | null
@@ -226,6 +433,8 @@ export type Database = {
           verified_gone: boolean | null
         }
         Insert: {
+          aegis_risk_factors?: Json | null
+          aegis_risk_score?: number | null
           attack_paths?: Json
           created_at?: string
           cvss_score?: number | null
@@ -259,6 +468,8 @@ export type Database = {
           verified_gone?: boolean | null
         }
         Update: {
+          aegis_risk_factors?: Json | null
+          aegis_risk_score?: number | null
           attack_paths?: Json
           created_at?: string
           cvss_score?: number | null
@@ -297,6 +508,62 @@ export type Database = {
             columns: ["scan_id"]
             isOneToOne: false
             referencedRelation: "scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pr_scans: {
+        Row: {
+          author: string | null
+          blocking_reasons: Json
+          branch: string | null
+          created_at: string
+          diff_summary: string | null
+          findings: Json
+          gate_status: string
+          id: string
+          integration_id: string | null
+          pr_number: number | null
+          summary: Json | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          author?: string | null
+          blocking_reasons?: Json
+          branch?: string | null
+          created_at?: string
+          diff_summary?: string | null
+          findings?: Json
+          gate_status?: string
+          id?: string
+          integration_id?: string | null
+          pr_number?: number | null
+          summary?: Json | null
+          title: string
+          user_id?: string
+        }
+        Update: {
+          author?: string | null
+          blocking_reasons?: Json
+          branch?: string | null
+          created_at?: string
+          diff_summary?: string | null
+          findings?: Json
+          gate_status?: string
+          id?: string
+          integration_id?: string | null
+          pr_number?: number | null
+          summary?: Json | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pr_scans_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "ci_integrations"
             referencedColumns: ["id"]
           },
         ]
@@ -425,6 +692,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      secret_findings: {
+        Row: {
+          classification: string
+          created_at: string
+          entropy: number | null
+          id: string
+          impact: string | null
+          line_start: number | null
+          location: string | null
+          masked_value: string | null
+          provider: string | null
+          remediation: string | null
+          rotation_steps: Json
+          scan_id: string | null
+          secret_type: string
+          severity: string
+          status: string
+          updated_at: string
+          user_id: string
+          validity: string
+        }
+        Insert: {
+          classification?: string
+          created_at?: string
+          entropy?: number | null
+          id?: string
+          impact?: string | null
+          line_start?: number | null
+          location?: string | null
+          masked_value?: string | null
+          provider?: string | null
+          remediation?: string | null
+          rotation_steps?: Json
+          scan_id?: string | null
+          secret_type: string
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          validity?: string
+        }
+        Update: {
+          classification?: string
+          created_at?: string
+          entropy?: number | null
+          id?: string
+          impact?: string | null
+          line_start?: number | null
+          location?: string | null
+          masked_value?: string | null
+          provider?: string | null
+          remediation?: string | null
+          rotation_steps?: Json
+          scan_id?: string | null
+          secret_type?: string
+          severity?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          validity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secret_findings_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "scans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       threat_intel: {
         Row: {
