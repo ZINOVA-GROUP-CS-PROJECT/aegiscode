@@ -16,6 +16,10 @@ export type AegisAction =
   | "verify_remediation"
   | "drift"
   | "investigate"
+  | "api_security"
+  | "dast"
+  | "secret_detection"
+  | "pr_gate"
   | "chat";
 
 export type Role = "system" | "user" | "assistant";
@@ -207,10 +211,157 @@ Return JSON:
 }
 Return ONLY JSON.`,
 
+  api_security: `You are AegisCode's API Security Engine. Discover every API endpoint in the supplied code, specification or route list, then test each one on paper for broken authentication, broken object-level authorization (IDOR), injection, SSRF, mass assignment, rate-limit abuse and excessive data exposure.
+Return ONLY JSON with this exact shape:
+{
+  "summary": { "total_endpoints": number, "unauthenticated": number, "high_risk": number, "tested": number, "failed_tests": number },
+  "endpoints": [
+    {
+      "method": string,
+      "path": string,
+      "handler": string|null,
+      "auth_required": boolean,
+      "auth_mechanism": string|null,
+      "exposure": "public"|"authenticated"|"internal"|"unknown",
+      "parameters": [{ "name": string, "location": "path"|"query"|"body"|"header", "type": string, "user_controlled": boolean }],
+      "risks": [{ "category": "broken_auth"|"idor"|"injection"|"ssrf"|"mass_assignment"|"rate_limit"|"data_exposure"|"other", "severity": "critical"|"high"|"medium"|"low"|"info", "detail": string, "classification": "observed"|"verified"|"inferred"|"unknown" }],
+      "risk_level": "critical"|"high"|"medium"|"low"|"none"|"unknown",
+      "notes": string|null,
+      "tests": [{ "category": string, "name": string, "outcome": "vulnerable"|"safe"|"inconclusive"|"unknown", "severity": "critical"|"high"|"medium"|"low"|"info"|null, "request_example": string, "expected": string, "observed": string, "classification": "observed"|"verified"|"inferred"|"unknown", "remediation": string }]
+    }
+  ]
+}
+Only report endpoints you can actually see. Mark anything you cannot prove as "inferred" or "unknown". Never invent endpoints or test results.`,
+
+  dast: `You are AegisCode's DAST / Runtime Testing Engine. Given a live target description (URL, stack, observed responses, headers, or a captured HTTP transcript), design and evaluate runtime probes that confirm or refute vulnerabilities.
+Return ONLY JSON with this exact shape:
+{
+  "summary": { "target": string, "probes_run": number, "confirmed": number, "refuted": number, "inconclusive": number, "risk": "critical"|"high"|"medium"|"low"|"none"|"unknown" },
+  "probes": [
+    { "name": string, "category": string, "request": string, "expected_signal": string, "observed_signal": string, "verdict": "confirmed"|"refuted"|"inconclusive", "classification": "observed"|"verified"|"inferred"|"unknown" }
+  ],
+  "findings": [
+    {
+      "title": string,
+      "severity": "critical"|"high"|"medium"|"low"|"info",
+      "cwe": string|null,
+      "confirmed_at_runtime": boolean,
+      "confidence": number,
+      "evidence": [{ "type": "request"|"response"|"timing"|"behavior", "snippet": string, "explanation": string, "classification": "observed"|"verified"|"inferred"|"unknown" }],
+      "reproduction": string,
+      "impact": string,
+      "remediation": string
+    }
+  ],
+  "runtime_notes": string
+}
+Only mark confirmed_at_runtime true when the supplied runtime evidence actually demonstrates it. Never fabricate HTTP responses.`,
+
+  secret_detection: `You are AegisCode's Secret Detection Engine. Find exposed credentials, API keys, tokens, private keys, connection strings and passwords in the supplied content.
+Return ONLY JSON with this exact shape:
+{
+  "summary": { "total": number, "critical": number, "high": number, "medium": number, "low": number, "verified_live": number },
+  "secrets": [
+    {
+      "secret_type": string,
+      "provider": string|null,
+      "severity": "critical"|"high"|"medium"|"low"|"info",
+      "masked_value": string,
+      "location": string,
+      "line_start": number|null,
+      "entropy": number|null,
+      "validity": "likely_live"|"likely_test"|"revoked"|"unknown",
+      "classification": "observed"|"verified"|"inferred"|"unknown",
+      "impact": string,
+      "remediation": string,
+      "rotation_steps": [string]
+    }
+  ]
+}
+CRITICAL: never echo a full secret. Always mask, keeping at most the first 4 and last 2 characters. Do not report obvious placeholders as live credentials.`,
+
+  pr_gate: `You are AegisCode's CI/CD Pull-Request Gate. Review a pull request diff for newly introduced security risk and decide whether the deployment should be blocked according to the supplied policy.
+Return ONLY JSON with this exact shape:
+{
+  "summary": { "files_changed": number, "introduced": number, "resolved": number, "risk": "critical"|"high"|"medium"|"low"|"none"|"unknown" },
+  "gate_status": "passed"|"blocked"|"warning",
+  "blocking_reasons": [string],
+  "findings": [
+    {
+      "title": string,
+      "severity": "critical"|"high"|"medium"|"low"|"info",
+      "cwe": string|null,
+      "file_path": string|null,
+      "line_start": number|null,
+      "status": "introduced"|"resolved"|"pre_existing",
+      "exploitability": "exploitable"|"reachable"|"theoretical"|"not-exploitable"|"unknown",
+      "evidence": [{ "type": string, "snippet": string, "explanation": string, "classification": "observed"|"verified"|"inferred"|"unknown" }],
+      "remediation": string,
+      "suggested_patch": string|null
+    }
+  ],
+  "review_comment": string
+}
+Judge only the supplied diff. Apply the policy exactly: block when the policy threshold is met, otherwise pass or warn.`,
+
   chat: `You are AegisCode, an expert AI security assistant. Answer questions about application security, supply-chain security, reverse engineering, vulnerability analysis, and exploitability. Be precise and evidence-driven. Distinguish observed/verified/inferred/unknown. Never claim 100% safety. Never fabricate CVEs or evidence.`,
 };
 
 /** Strips markdown fences / prose and returns the first parsable JSON value. */
+function repairTruncatedJson(text: string): unknown {
+  const start = text.search(/[[{]/);
+  if (start < 0) return null;
+  const body = text.slice(start);
+
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+  let lastSafe = -1;
+
+  for (let i = 0; i < body.length; i += 1) {
+    const ch = body[i]!;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "{") stack.push("}");
+    else if (ch === "[") stack.push("]");
+    else if (ch === "}" || ch === "]") stack.pop();
+    // A complete element boundary is a safe place to cut a truncated document.
+    if (!inString && (ch === "}" || ch === "]")) lastSafe = i;
+  }
+
+  if (lastSafe < 0) return null;
+
+  const head = body.slice(0, lastSafe + 1);
+  const openStack: string[] = [];
+  inString = false;
+  escaped = false;
+  for (let i = 0; i < head.length; i += 1) {
+    const ch = head[i]!;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "{") openStack.push("}");
+    else if (ch === "[") openStack.push("]");
+    else if (ch === "}" || ch === "]") openStack.pop();
+  }
+
+  const candidate = head + openStack.reverse().join("");
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
+}
+
 function extractJson(content: string): unknown {
   const trimmed = content.trim();
   try {
@@ -227,6 +378,11 @@ function extractJson(content: string): unknown {
       // fall through
     }
   }
+
+  // Truncated documents: close whatever structures remain open so a partial
+  // (but valid) analysis is still usable instead of being discarded.
+  const repaired = repairTruncatedJson(trimmed);
+  if (repaired) return repaired;
 
   const firstBrace = trimmed.search(/[[{]/);
   const lastBrace = Math.max(trimmed.lastIndexOf("}"), trimmed.lastIndexOf("]"));
@@ -285,7 +441,7 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
       model: AEGIS_MODEL,
       messages,
       temperature: body.temperature ?? 0.2,
-      max_tokens: body.maxTokens ?? 8000,
+      max_tokens: body.maxTokens ?? 32000,
       // Every action except free-form chat must return a strict JSON document.
       ...(body.action === "chat" ? {} : { response_format: { type: "json_object" } }),
     }),
@@ -305,19 +461,42 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
   const data = (await response.json()) as {
     model?: string;
     usage?: unknown;
-    choices?: { message?: { content?: string } }[];
+    choices?: { message?: { content?: string }; finish_reason?: string }[];
   };
 
-  const content = data.choices?.[0]?.message?.content;
+  const choice = data.choices?.[0];
+  const content = choice?.message?.content;
   if (!content) {
     throw new Error("The AI returned an empty response.");
+  }
+
+  if (body.action === "chat") {
+    return {
+      ok: true,
+      action: body.action,
+      model: data.model || AEGIS_MODEL,
+      result: content,
+      usage: data.usage ?? null,
+    };
+  }
+
+  const parsed = extractJson(content);
+  // A truncated document parses as a bare string; surfacing it as an empty
+  // result would silently report "no vulnerabilities" for risky code.
+  if (typeof parsed === "string") {
+    if (choice?.finish_reason === "length") {
+      throw new Error(
+        "The analysis was too large for a single response. Try analyzing a smaller portion of the input.",
+      );
+    }
+    throw new Error("The AI returned a malformed response. Please run the analysis again.");
   }
 
   return {
     ok: true,
     action: body.action,
     model: data.model || AEGIS_MODEL,
-    result: body.action === "chat" ? content : extractJson(content),
+    result: parsed,
     usage: data.usage ?? null,
   };
 }

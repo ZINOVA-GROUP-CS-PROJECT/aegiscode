@@ -10,6 +10,10 @@ import type {
   AIVerificationResult,
   AIDriftResult,
   AIInvestigationResult,
+  AIApiSecurityResult,
+  AIDastResult,
+  AISecretScanResult,
+  AIPrGateResult,
 } from "./types";
 
 async function callAI<T>(payload: {
@@ -110,6 +114,33 @@ export const ai = {
     callAI<AIInvestigationResult>({
       action: "investigate",
       userContent: context,
+    }),
+
+  scanApis: (input: string, appContext: string) =>
+    callAI<AIApiSecurityResult>({
+      action: "api_security",
+      userContent: `API surface (routes, OpenAPI spec, controller code or endpoint list):\n${input}\n\nApplication context:\n${appContext}`,
+    }),
+
+  runDast: (target: string, evidence: string) =>
+    callAI<AIDastResult>({
+      action: "dast",
+      userContent: `Target: ${target}\n\nRuntime evidence (headers, responses, transcript, stack details):\n${evidence}`,
+    }),
+
+  detectSecrets: (content: string, source: string) =>
+    callAI<AISecretScanResult>({
+      action: "secret_detection",
+      userContent: `Source: ${source}\n\nContent to scan for exposed credentials:\n${content}`,
+    }),
+
+  gatePullRequest: (
+    pr: { title: string; author?: string; branch?: string; diff: string },
+    policy: string,
+  ) =>
+    callAI<AIPrGateResult>({
+      action: "pr_gate",
+      userContent: `Pull request: ${pr.title}\nAuthor: ${pr.author || "unknown"}\nBranch: ${pr.branch || "unknown"}\n\nBlocking policy:\n${policy}\n\nDiff:\n${pr.diff}`,
     }),
 
   chat: (messages: { role: "user" | "assistant"; content: string }[]) =>

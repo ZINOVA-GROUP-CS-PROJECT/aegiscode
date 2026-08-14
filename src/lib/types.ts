@@ -421,3 +421,180 @@ export interface AIResponse<T> {
   result: T;
   usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | null;
 }
+
+/* ============================================================
+ * API Security, DAST, Secret Detection, CI/CD gate
+ * ============================================================ */
+
+export type ApiRiskCategory =
+  | "broken_auth"
+  | "idor"
+  | "injection"
+  | "ssrf"
+  | "mass_assignment"
+  | "rate_limit"
+  | "data_exposure"
+  | "other";
+
+export type TestOutcome = "vulnerable" | "safe" | "inconclusive" | "unknown";
+export type ProbeVerdict = "confirmed" | "refuted" | "inconclusive";
+export type SecretValidity = "likely_live" | "likely_test" | "revoked" | "unknown";
+export type GateStatus = "passed" | "blocked" | "warning";
+
+export interface ApiParameter {
+  name: string;
+  location: "path" | "query" | "body" | "header";
+  type?: string;
+  user_controlled?: boolean;
+}
+
+export interface ApiRisk {
+  category: ApiRiskCategory;
+  severity: Severity;
+  detail: string;
+  classification?: Classification;
+}
+
+export interface ApiTest {
+  category: string;
+  name: string;
+  outcome: TestOutcome;
+  severity?: Severity | null;
+  request_example?: string;
+  expected?: string;
+  observed?: string;
+  classification?: Classification;
+  remediation?: string;
+}
+
+export interface ApiEndpointResult {
+  method: string;
+  path: string;
+  handler?: string | null;
+  auth_required?: boolean;
+  auth_mechanism?: string | null;
+  exposure?: "public" | "authenticated" | "internal" | "unknown";
+  parameters?: ApiParameter[];
+  risks?: ApiRisk[];
+  risk_level?: RiskLevel;
+  notes?: string | null;
+  tests?: ApiTest[];
+}
+
+export interface AIApiSecurityResult {
+  summary: {
+    total_endpoints: number;
+    unauthenticated: number;
+    high_risk: number;
+    tested: number;
+    failed_tests: number;
+  };
+  endpoints: ApiEndpointResult[];
+}
+
+export interface DastProbe {
+  name: string;
+  category: string;
+  request: string;
+  expected_signal: string;
+  observed_signal: string;
+  verdict: ProbeVerdict;
+  classification?: Classification;
+}
+
+export interface DastFinding {
+  title: string;
+  severity: Severity;
+  cwe?: string | null;
+  confirmed_at_runtime: boolean;
+  confidence?: number;
+  evidence?: EvidenceItem[];
+  reproduction?: string;
+  impact?: string;
+  remediation?: string;
+}
+
+export interface AIDastResult {
+  summary: {
+    target: string;
+    probes_run: number;
+    confirmed: number;
+    refuted: number;
+    inconclusive: number;
+    risk: RiskLevel;
+  };
+  probes: DastProbe[];
+  findings: DastFinding[];
+  runtime_notes?: string;
+}
+
+export interface SecretResult {
+  secret_type: string;
+  provider?: string | null;
+  severity: Severity;
+  masked_value: string;
+  location?: string;
+  line_start?: number | null;
+  entropy?: number | null;
+  validity?: SecretValidity;
+  classification?: Classification;
+  impact?: string;
+  remediation?: string;
+  rotation_steps?: string[];
+}
+
+export interface AISecretScanResult {
+  summary: {
+    total: number;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    verified_live: number;
+  };
+  secrets: SecretResult[];
+}
+
+export interface PrGateFinding {
+  title: string;
+  severity: Severity;
+  cwe?: string | null;
+  file_path?: string | null;
+  line_start?: number | null;
+  status: "introduced" | "resolved" | "pre_existing";
+  exploitability?: Exploitability;
+  evidence?: EvidenceItem[];
+  remediation?: string;
+  suggested_patch?: string | null;
+}
+
+export interface AIPrGateResult {
+  summary: {
+    files_changed: number;
+    introduced: number;
+    resolved: number;
+    risk: RiskLevel;
+  };
+  gate_status: GateStatus;
+  blocking_reasons: string[];
+  findings: PrGateFinding[];
+  review_comment?: string;
+}
+
+/* ============================================================
+ * Aegis Risk Score
+ * ============================================================ */
+
+export interface AegisRiskFactor {
+  label: string;
+  weight: number;
+  value: number;
+  contribution: number;
+  detail: string;
+}
+
+export interface AegisRiskScore {
+  score: number;
+  band: RiskLevel;
+  factors: AegisRiskFactor[];
+}
