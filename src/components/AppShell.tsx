@@ -18,6 +18,11 @@ import {
   Menu,
   X,
   Bot,
+  Radio,
+  KeyRound,
+  Plug,
+  FolderSearch,
+  Bug,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -28,6 +33,9 @@ export type PageId =
   | "dashboard"
   | "analyze"
   | "code-security"
+  | "api-security"
+  | "dast"
+  | "secrets"
   | "exploitability"
   | "attack-paths"
   | "supply-chain"
@@ -37,6 +45,9 @@ export type PageId =
   | "drift"
   | "remediation"
   | "reports"
+  | "evidence"
+  | "finding"
+  | "ci-cd"
   | "settings";
 
 interface NavItem {
@@ -50,6 +61,9 @@ const NAV: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, group: "Overview" },
   { id: "analyze", label: "Analyze", icon: <ScanSearch className="h-[18px] w-[18px]" />, group: "Overview" },
   { id: "code-security", label: "Code Security", icon: <ShieldAlert className="h-[18px] w-[18px]" />, group: "Analysis" },
+  { id: "api-security", label: "API Security", icon: <Plug className="h-[18px] w-[18px]" />, group: "Analysis" },
+  { id: "dast", label: "DAST / Runtime", icon: <Radio className="h-[18px] w-[18px]" />, group: "Analysis" },
+  { id: "secrets", label: "Secret Detection", icon: <KeyRound className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "exploitability", label: "Exploitability", icon: <Crosshair className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "attack-paths", label: "Attack Paths", icon: <Network className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "supply-chain", label: "Supply Chain", icon: <Package className="h-[18px] w-[18px]" />, group: "Analysis" },
@@ -58,6 +72,9 @@ const NAV: NavItem[] = [
   { id: "threat-intel", label: "Threat Intel", icon: <Globe className="h-[18px] w-[18px]" />, group: "Intelligence" },
   { id: "drift", label: "Drift", icon: <GitCompareArrows className="h-[18px] w-[18px]" />, group: "Intelligence" },
   { id: "remediation", label: "Remediation", icon: <Wrench className="h-[18px] w-[18px]" />, group: "Action" },
+  { id: "evidence", label: "Evidence Center", icon: <FolderSearch className="h-[18px] w-[18px]" />, group: "Action" },
+  { id: "finding", label: "Finding Details", icon: <Bug className="h-[18px] w-[18px]" />, group: "Action" },
+  { id: "ci-cd", label: "CI/CD Gate", icon: <GitBranch className="h-[18px] w-[18px]" />, group: "Action" },
   { id: "reports", label: "Reports", icon: <FileText className="h-[18px] w-[18px]" />, group: "Action" },
   { id: "settings", label: "Settings", icon: <Settings className="h-[18px] w-[18px]" />, group: "Action" },
 ];
