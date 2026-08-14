@@ -7,6 +7,12 @@ import { LoadingSpinner } from "@/components/ui-kit";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { AnalyzePage } from "@/pages/AnalyzePage";
 import { CodeSecurityPage } from "@/pages/CodeSecurityPage";
+import { ApiSecurityPage } from "@/pages/ApiSecurityPage";
+import { DastPage } from "@/pages/DastPage";
+import { SecretsPage } from "@/pages/SecretsPage";
+import { EvidenceCenterPage } from "@/pages/EvidenceCenterPage";
+import { FindingDetailPage } from "@/pages/FindingDetailPage";
+import { CiCdPage } from "@/pages/CiCdPage";
 import { ExploitabilityPage } from "@/pages/ExploitabilityPage";
 import { AttackPathsPage } from "@/pages/AttackPathsPage";
 import { SupplyChainPage } from "@/pages/SupplyChainPage";
@@ -78,6 +84,18 @@ function AppContent() {
         return <AnalyzePage onNavigate={setPage} />;
       case "code-security":
         return <CodeSecurityPage onNavigate={setPage} />;
+      case "api-security":
+        return <ApiSecurityPage />;
+      case "dast":
+        return <DastPage />;
+      case "secrets":
+        return <SecretsPage />;
+      case "evidence":
+        return <EvidenceCenterPage onNavigate={setPage} />;
+      case "finding":
+        return <FindingDetailPage onNavigate={setPage} />;
+      case "ci-cd":
+        return <CiCdPage />;
       case "exploitability":
         return <ExploitabilityPage onNavigate={setPage} />;
       case "attack-paths":

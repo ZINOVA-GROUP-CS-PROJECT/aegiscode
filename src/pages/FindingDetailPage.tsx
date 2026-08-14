@@ -126,8 +126,8 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
           .update({
             exploitability: res.exploitability,
             exploit_confidence: res.confidence ?? finding.exploit_confidence,
-            reachability: res.reachability ?? finding.reachability,
-            verdict: res.verdict ?? finding.verdict,
+            reachability: res.classification ?? finding.reachability,
+            verdict: { reasoning: res.reasoning, confidence: res.confidence, classification: res.classification },
           } as never)
           .eq("id", finding.id);
       } else if (kind === "fix") {
@@ -139,17 +139,16 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
         setFix(res);
         await supabase
           .from("findings")
-          .update({ secure_fix: res.fixed_code ?? null, remediation: res.explanation ?? finding.remediation } as never)
+          .update({ secure_fix: res.fix_code ?? null, remediation: res.fix_description ?? finding.remediation } as never)
           .eq("id", finding.id);
         await supabase.from("remediations").insert({
           finding_id: finding.id,
-          patch: res.patch ?? null,
-          fixed_code: res.fixed_code ?? null,
-          explanation: res.explanation ?? null,
-          status: "proposed",
+          fix_code: res.fix_code ?? null,
+          fix_description: res.fix_description ?? null,
+          verification_status: "pending",
         } as never);
       } else {
-        const fixedCode = fix?.fixed_code || finding.secure_fix;
+        const fixedCode = fix?.fix_code || finding.secure_fix;
         if (!fixedCode) {
           setError("Generate a fix first — verification needs the remediated code.");
           setBusy(null);
@@ -160,8 +159,8 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
         await supabase
           .from("findings")
           .update({
-            verified_gone: res.vulnerability_gone === true,
-            status: res.vulnerability_gone === true ? "fixed" : finding.status,
+            verified_gone: res.verification_status === "verified",
+            status: res.verification_status === "verified" ? "fixed" : finding.status,
           } as never)
           .eq("id", finding.id);
       }
@@ -334,7 +333,7 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
             <div className="flex flex-wrap items-center gap-2">
               <SeverityBadge severity={finding.severity} />
               <ExploitabilityBadge exploitability={exploit?.exploitability ?? finding.exploitability} />
-              <ClassificationTag classification={exploit?.reachability ?? finding.reachability} />
+              <ClassificationTag classification={exploit?.classification ?? finding.reachability} />
               <KevBadge inKev={finding.in_kev} />
               {finding.verified_gone && (
                 <span className="flex items-center gap-1 rounded bg-ok/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ok">
@@ -382,18 +381,32 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
                 <p className="stat-label !mb-0">Exploitability verdict</p>
               </div>
               <p className="text-xs leading-relaxed text-ink-300">
-                {exploit?.verdict?.reasoning || finding.verdict?.reasoning}
+                {exploit?.reasoning || finding.verdict?.reasoning}
               </p>
-              {(exploit?.evidence ?? []).map((e, i) => (
+              {(exploit?.reachability_chain ?? []).map((n, i) => (
                 <div key={i} className="mt-3 rounded-lg skeu-screen p-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-wider text-ink-500">{e.type}</span>
-                    {e.classification && <ClassificationTag classification={e.classification} />}
+                    <span className="font-mono text-[11px] text-ink-500">#{n.step ?? i + 1}</span>
+                    <span className="text-xs font-semibold text-ink-200">{n.point}</span>
+                    <span
+                      className={classNames(
+                        "rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                        n.reachable ? "bg-danger/15 text-danger" : "bg-ok/15 text-ok",
+                      )}
+                    >
+                      {n.reachable ? "reachable" : "blocked"}
+                    </span>
+                    {n.classification && <ClassificationTag classification={n.classification} />}
                   </div>
-                  {e.snippet && <pre className="mt-2 overflow-x-auto font-mono text-[11px] text-ink-300">{e.snippet}</pre>}
-                  {e.explanation && <p className="mt-2 text-xs text-ink-400">{e.explanation}</p>}
                 </div>
               ))}
+              {(exploit?.conditions_required ?? []).length > 0 && (
+                <ul className="mt-3 space-y-1 text-xs text-ink-400">
+                  {(exploit?.conditions_required ?? []).map((c, i) => (
+                    <li key={i}>• {c}</li>
+                  ))}
+                </ul>
+              )}
             </Panel>
           )}
 
@@ -478,19 +491,25 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
                 <Wrench className="h-4 w-4 text-cyber-300" />
                 <p className="stat-label !mb-0">AI remediation</p>
               </div>
-              {fix?.explanation && <p className="mb-3 text-xs leading-relaxed text-ink-300">{fix.explanation}</p>}
-              {fix?.patch && (
-                <>
-                  <p className="stat-label mb-1">Patch</p>
-                  <CodeBlock code={fix.patch} language="diff" />
-                </>
+              {fix?.fix_description && (
+                <p className="mb-3 text-xs leading-relaxed text-ink-300">{fix.fix_description}</p>
               )}
-              {(fix?.fixed_code || finding.secure_fix) && (
+              {(fix?.fix_code || finding.secure_fix) && (
                 <div className="mt-3">
-                  <p className="stat-label mb-1">Fixed code</p>
-                  <CodeBlock code={(fix?.fixed_code || finding.secure_fix) as string} />
+                  <p className="stat-label mb-1">Patched code</p>
+                  <CodeBlock code={(fix?.fix_code || finding.secure_fix) as string} />
                 </div>
               )}
+              {(fix?.changes ?? []).length > 0 && (
+                <ul className="mt-3 space-y-1 text-xs text-ink-400">
+                  {(fix?.changes ?? []).map((c, i) => (
+                    <li key={i}>
+                      <span className="font-mono text-ink-300">{c.file}</span> — {c.change} ({c.reason})
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {fix?.residual_risk && <p className="mt-3 text-xs text-warning">{fix.residual_risk}</p>}
             </Panel>
           )}
 
@@ -503,21 +522,21 @@ export function FindingDetailPage({ onNavigate }: { onNavigate?: (page: PageId) 
               <div
                 className={classNames(
                   "rounded-lg p-3 text-xs",
-                  verification.vulnerability_gone
+                  verification.verification_status === "verified"
                     ? "bg-ok/10 text-ok"
                     : "bg-danger/10 text-danger",
                 )}
               >
-                {verification.vulnerability_gone
+                {verification.verification_status === "verified"
                   ? "Independently verified: the vulnerability is gone."
                   : "Not verified: the vulnerability or an equivalent path still appears reachable."}
               </div>
-              {verification.reasoning && (
-                <p className="mt-3 text-xs leading-relaxed text-ink-300">{verification.reasoning}</p>
+              {verification.verdict && (
+                <p className="mt-3 text-xs leading-relaxed text-ink-300">{verification.verdict}</p>
               )}
-              {(verification.residual_risks ?? []).length > 0 && (
+              {(verification.residual_issues ?? []).length > 0 && (
                 <ul className="mt-3 space-y-1 text-xs text-ink-400">
-                  {(verification.residual_risks ?? []).map((r, i) => (
+                  {(verification.residual_issues ?? []).map((r, i) => (
                     <li key={i}>• {r}</li>
                   ))}
                 </ul>
