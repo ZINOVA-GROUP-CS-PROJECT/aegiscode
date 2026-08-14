@@ -35,7 +35,7 @@ function normalizeAnalysis(
 ): AICodeAnalysisResult {
   const findings = Array.isArray(result?.findings) ? result.findings : [];
   const count = (severity: string) => findings.filter((f) => f.severity === severity).length;
-  const summary = {
+  const fallback = {
     total: findings.length,
     critical: count("critical"),
     high: count("high"),
@@ -44,8 +44,8 @@ function normalizeAnalysis(
     info: count("info"),
     language: language || "auto-detect",
     loc: code.split("\n").length,
-    ...(result?.summary ?? {}),
   };
+  const summary = { ...fallback, ...(result?.summary ?? {}) };
   return { ...result, findings, summary } as AICodeAnalysisResult;
 }
 
