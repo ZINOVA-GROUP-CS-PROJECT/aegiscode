@@ -285,7 +285,9 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
       model: AEGIS_MODEL,
       messages,
       temperature: body.temperature ?? 0.2,
-      max_tokens: body.maxTokens ?? 4000,
+      max_tokens: body.maxTokens ?? 8000,
+      // Every action except free-form chat must return a strict JSON document.
+      ...(body.action === "chat" ? {} : { response_format: { type: "json_object" } }),
     }),
   });
 
