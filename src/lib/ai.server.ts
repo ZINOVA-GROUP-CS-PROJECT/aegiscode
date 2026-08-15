@@ -38,7 +38,7 @@ export interface AegisRequest {
   maxTokens?: number;
 }
 
-export const AEGIS_MODEL = "google/gemma-4-31b-it:free";
+export const AEGIS_MODEL = "openai/gpt-oss-20b:free";
 
 const GATEWAY_URL = "https://openrouter.ai/api/v1/chat/completions";
 
