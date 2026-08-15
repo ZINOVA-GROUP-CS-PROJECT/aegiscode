@@ -23,10 +23,13 @@ import {
   Plug,
   FolderSearch,
   Bug,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
+import { useTheme } from "@/lib/theme";
 import { AIAssistant } from "@/components/AIAssistant";
 
 export type PageId =
@@ -89,6 +92,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
 
@@ -152,7 +156,7 @@ export function AppShell({
   );
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-[100dvh] overflow-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-64 shrink-0 border-r border-ink-700/40 skeu-bezel">
         {sidebar}
@@ -162,7 +166,7 @@ export function AppShell({
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40 flex">
           <div className="fixed inset-0 bg-ink-950/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="relative z-50 w-64 border-r border-ink-700/40 skeu-bezel animate-slide-in-right">
+          <aside className="relative z-50 w-[17rem] max-w-[85vw] border-r border-ink-700/40 skeu-bezel animate-slide-in-right">
             <button
               onClick={() => setMobileOpen(false)}
               className="absolute right-3 top-3 text-ink-400 hover:text-ink-100"
@@ -176,22 +180,32 @@ export function AppShell({
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center justify-between border-b border-ink-700/40 px-4 lg:px-6 skeu-assistant-bar">
-          <div className="flex items-center gap-3">
+        <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-ink-700/40 px-3 sm:px-4 lg:px-6 skeu-assistant-bar">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden text-ink-300 hover:text-ink-100"
+              className="lg:hidden shrink-0 rounded-md p-1.5 text-ink-300 transition-colors hover:text-ink-100"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="led text-volt-400 animate-led-pulse" style={{ width: 8, height: 8 }} />
-              <span className="text-xs font-medium text-ink-400">All systems operational</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="led shrink-0 text-volt-400 animate-led-pulse" style={{ width: 8, height: 8 }} />
+              <span className="truncate text-xs font-medium text-ink-400">All systems operational</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs text-ink-500 font-mono">v1.0.0</span>
-            <div className="h-6 w-px bg-ink-700/40" />
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <span className="hidden md:inline text-xs text-ink-500 font-mono">v1.0.0</span>
+            <div className="hidden md:block h-6 w-px bg-ink-700/40" />
+            <button
+              onClick={toggleTheme}
+              role="switch"
+              aria-checked={theme === "light"}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-300 transition-all duration-200 skeu-bezel hover:text-cyber-300"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <button
               onClick={() => setAssistantOpen(true)}
               className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium text-cyber-300 transition-all duration-150 skeu-bezel hover:text-cyber-200"
@@ -204,7 +218,7 @@ export function AppShell({
         </header>
 
         <main className="flex-1 overflow-y-auto bg-grid">
-          <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">{children}</div>
+          <div className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-4 sm:py-6 lg:px-8 lg:py-8">{children}</div>
         </main>
       </div>
 

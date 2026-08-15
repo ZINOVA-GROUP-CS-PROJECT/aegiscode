@@ -12,14 +12,19 @@ import {
   Trash2,
   Lock,
   Database,
+  Palette,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
 import { supabase } from "@/lib/db";
 import { Panel, PageHeader, Button, Toggle } from "@/components/ui-kit";
 import { classNames } from "@/lib/utils";
 
 export function SettingsPage() {
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [defaultSeverity, setDefaultSeverity] = useState("all");
   const [autoSave, setAutoSave] = useState(true);
   const [notifications, setNotifications] = useState(true);
@@ -109,7 +114,7 @@ export function SettingsPage() {
           Account
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
             <div>
               <p className="text-xs text-ink-500">Email</p>
               <p className="text-sm text-ink-100">{user?.email ?? "—"}</p>
@@ -121,6 +126,30 @@ export function SettingsPage() {
           <Button variant="danger" size="sm" onClick={signOut}>
             Sign Out
           </Button>
+        </div>
+      </Panel>
+
+      {/* Appearance */}
+      <Panel className="p-5">
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-ink-100">
+          <Palette className="h-4 w-4 text-cyber-400" />
+          Appearance
+        </h3>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg skeu-bezel text-cyber-400">
+              {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm text-ink-100">{theme === "dark" ? "Dark mode" : "Light mode"}</p>
+              <p className="text-xs text-ink-500">Switch the console theme. Your choice is remembered on this device.</p>
+            </div>
+          </div>
+          <Toggle
+            checked={theme === "light"}
+            onChange={(v) => setTheme(v ? "light" : "dark")}
+            label="Toggle light mode"
+          />
         </div>
       </Panel>
 
@@ -166,7 +195,7 @@ export function SettingsPage() {
         </h3>
         <div className="space-y-3">
           <div className="rounded-lg border border-danger/30 bg-danger/5 p-4">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-ink-100">Reset All Data</p>
                 <p className="mt-1 text-xs text-ink-400">
@@ -207,7 +236,7 @@ export function SettingsPage() {
           PWA & Offline
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
             <div>
               <p className="text-sm text-ink-100">Install as App</p>
               <p className="text-xs text-ink-500">Install AegisCode as a standalone app on your device</p>
@@ -223,7 +252,7 @@ export function SettingsPage() {
               <span>Use your browser's "Install app" or "Add to home screen" option to install AegisCode.</span>
             </div>
           )}
-          <div className="flex items-center justify-between rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
             <div>
               <p className="text-sm text-ink-100">Service Worker</p>
               <p className="text-xs text-ink-500">Offline caching of the app shell</p>
@@ -274,12 +303,12 @@ function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
-      <div>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-lg border border-ink-700/40 bg-ink-850/50 p-3">
+      <div className="min-w-0">
         <p className="text-sm text-ink-100">{label}</p>
         <p className="text-xs text-ink-500">{description}</p>
       </div>
-      <Toggle checked={value} onChange={onChange} />
+      <Toggle checked={value} onChange={onChange} label={label} />
     </div>
   );
 }

@@ -230,33 +230,36 @@ Block when a secret is introduced: ${active.block_on_secrets ? "yes" : "no"}.`
                     <span className="text-[10px] uppercase tracking-wider text-ink-500">{i.provider}</span>
                   </button>
                   <div className="mt-3 space-y-2 text-xs text-ink-400">
-                    <div className="flex items-center justify-between">
-                      <span>Scan pull requests</span>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 pr-1">Scan pull requests</span>
                       <Toggle
+                        label="Scan pull requests"
                         checked={i.scan_pull_requests}
                         onChange={(v) => void patch(i.id, { scan_pull_requests: v })}
                       />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span>Block on exploitable</span>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 pr-1">Block on exploitable</span>
                       <Toggle
+                        label="Block on exploitable"
                         checked={i.block_on_exploitable}
                         onChange={(v) => void patch(i.id, { block_on_exploitable: v })}
                       />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span>Block on secrets</span>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 pr-1">Block on secrets</span>
                       <Toggle
+                        label="Block on secrets"
                         checked={i.block_on_secrets}
                         onChange={(v) => void patch(i.id, { block_on_secrets: v })}
                       />
                     </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span>Block at severity</span>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 pr-1">Block at severity</span>
                       <select
                         value={i.block_on_severity}
                         onChange={(e) => void patch(i.id, { block_on_severity: e.target.value })}
-                        className="input w-28 py-1 text-[12px]"
+                        className="input w-auto min-w-24 shrink-0 py-1 text-[12px]"
                       >
                         <option value="critical">critical</option>
                         <option value="high">high</option>
@@ -264,9 +267,9 @@ Block when a secret is introduced: ${active.block_on_secrets ? "yes" : "no"}.`
                         <option value="low">low</option>
                       </select>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span>Enabled</span>
-                      <Toggle checked={i.enabled} onChange={(v) => void patch(i.id, { enabled: v })} />
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 pr-1">Enabled</span>
+                      <Toggle label="Enabled" checked={i.enabled} onChange={(v) => void patch(i.id, { enabled: v })} />
                     </div>
                     <button
                       onClick={() => void removeIntegration(i.id)}

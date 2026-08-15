@@ -283,21 +283,31 @@ export function CodeBlock({ code, language, className }: { code: string; languag
 export function Toggle({
   checked,
   onChange,
+  disabled,
+  label,
+  className,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
+  label?: string;
+  className?: string;
 }) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={classNames("skeu-toggle", checked && "skeu-toggle-on")}
+      className={classNames("skeu-toggle", checked && "skeu-toggle-on", className)}
     >
-      <span
-        className={classNames("skeu-toggle-knob", checked ? "translate-x-5" : "translate-x-0.5")}
-      />
+      <span className="skeu-toggle-knob" />
     </button>
   );
 }
+
 
 export function LedDot({ color, size = 8 }: { color: string; size?: number }) {
   return (
