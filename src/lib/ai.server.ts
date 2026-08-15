@@ -40,7 +40,7 @@ export interface AegisRequest {
 
 export const AEGIS_MODEL = "google/gemma-4-31b-it:free";
 
-const GATEWAY_URL = "https://openrouter.ai/api/v1";
+const GATEWAY_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export const SYSTEM_PROMPTS: Record<AegisAction, string> = {
   analyze_code: `You are AegisCode, an elite application security analyst. Analyze code for vulnerabilities with surgical precision.
