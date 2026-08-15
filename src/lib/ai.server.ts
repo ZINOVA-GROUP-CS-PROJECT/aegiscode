@@ -38,9 +38,9 @@ export interface AegisRequest {
   maxTokens?: number;
 }
 
-export const AEGIS_MODEL = "google/gemini-3.5-flash";
+export const AEGIS_MODEL = "google/gemma-4-31b";
 
-const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const GATEWAY_URL = "https://openrouter.ai/google/gemma-4-31b-it:free";
 
 export const SYSTEM_PROMPTS: Record<AegisAction, string> = {
   analyze_code: `You are AegisCode, an elite application security analyst. Analyze code for vulnerabilities with surgical precision.
