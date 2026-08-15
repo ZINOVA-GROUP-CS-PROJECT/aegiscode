@@ -38,7 +38,7 @@ export interface AegisRequest {
   maxTokens?: number;
 }
 
-export const AEGIS_MODEL = "google/gemma-4-31b";
+export const AEGIS_MODEL = "google/gemma-4-31b-it:free";
 
 const GATEWAY_URL = "https://openrouter.ai/api/v1";
 
