@@ -406,9 +406,9 @@ export interface AegisEnvelope {
 }
 
 export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
+  const apiKey = process.env["OPENROUTER_API_KEY"];
   if (!apiKey) {
-    throw new Error("AI is not configured for this project (missing gateway credentials).");
+    throw new Error("AI is not configured. Missing OPENROUTER_API_KEY.");
   }
 
   if (!body.action || !SYSTEM_PROMPTS[body.action]) {
