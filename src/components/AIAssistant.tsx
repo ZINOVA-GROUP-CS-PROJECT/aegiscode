@@ -54,6 +54,7 @@ const PAGE_CONTEXT: Record<PageId, string> = {
   "supply-chain": "Supply Chain — analyze dependencies for vulnerabilities, poisoning, and blast radius",
   "reverse-engineering": "Reverse Engineering — analyze binary metadata for security-relevant findings",
   "security-graph": "Security Graph — visualize relationships between findings, dependencies, and threat intel",
+  kev: "Known Exploited Vulnerabilities — the CISA KEV catalog, ransomware-linked CVEs, and CVE-to-asset correlation against findings, dependencies and threat intel",
   "threat-intel": "Threat Intel — fuse CVE/NVD/OSV/CISA KEV/EPSS intelligence",
   drift: "Drift — detect security-relevant changes between before/after states",
   remediation: "Remediation — generate secure fixes and verify them independently",

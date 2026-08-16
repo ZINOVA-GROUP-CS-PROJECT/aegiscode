@@ -45,6 +45,7 @@ export type PageId =
   | "reverse-engineering"
   | "security-graph"
   | "threat-intel"
+  | "kev"
   | "drift"
   | "remediation"
   | "reports"
@@ -72,6 +73,7 @@ const NAV: NavItem[] = [
   { id: "supply-chain", label: "Supply Chain", icon: <Package className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "reverse-engineering", label: "Reverse Engineering", icon: <Cpu className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "security-graph", label: "Security Graph", icon: <GitBranch className="h-[18px] w-[18px]" />, group: "Intelligence" },
+  { id: "kev", label: "Known Exploited (KEV)", icon: <ShieldAlert className="h-[18px] w-[18px]" />, group: "Intelligence" },
   { id: "threat-intel", label: "Threat Intel", icon: <Globe className="h-[18px] w-[18px]" />, group: "Intelligence" },
   { id: "drift", label: "Drift", icon: <GitCompareArrows className="h-[18px] w-[18px]" />, group: "Intelligence" },
   { id: "remediation", label: "Remediation", icon: <Wrench className="h-[18px] w-[18px]" />, group: "Action" },
