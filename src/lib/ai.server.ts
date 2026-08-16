@@ -38,9 +38,9 @@ export interface AegisRequest {
   maxTokens?: number;
 }
 
-export const AEGIS_MODEL = "openai/gpt-oss-20b:free";
+export const AEGIS_MODEL = "google/gemini-2.5-flash";
 
-const GATEWAY_URL = "https://openrouter.ai/api/v1/chat/completions";
+const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 export const SYSTEM_PROMPTS: Record<AegisAction, string> = {
   analyze_code: `You are AegisCode, an elite application security analyst. Analyze code for vulnerabilities with surgical precision.
@@ -406,9 +406,9 @@ export interface AegisEnvelope {
 }
 
 export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
-  const apiKey = process.env["OPENROUTER_API_KEY"];
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) {
-    throw new Error("AI is not configured. Missing OPENROUTER_API_KEY.");
+    throw new Error("AI is not configured.");
   }
 
   if (!body.action || !SYSTEM_PROMPTS[body.action]) {
@@ -434,7 +434,8 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "fetch",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
