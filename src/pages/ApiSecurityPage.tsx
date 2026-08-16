@@ -47,6 +47,7 @@ interface StoredEndpoint {
 
 export function ApiSecurityPage() {
   const [input, setInput] = useState("");
+  const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [appContext, setAppContext] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -157,15 +158,37 @@ export function ApiSecurityPage() {
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-2 space-y-4">
           <Panel className="p-5">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <label className="label !mb-0">Routes / OpenAPI / Endpoint list</label>
-              <button
-                onClick={() => setInput(SAMPLE)}
-                className="text-xs text-cyber-300 hover:text-cyber-200 transition-colors"
-              >
-                Load sample
-              </button>
+              <div className="flex items-center gap-3">
+                <label className="cursor-pointer text-xs text-cyber-300 transition-colors hover:text-cyber-200">
+                  Upload API file
+                  <input
+                    type="file"
+                    accept=".json,.yaml,.yml,.txt,.ts,.js,.py,.rb,.go,.java,.md"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const text = await file.text();
+                      setInput(text.slice(0, 200_000));
+                      setUploadedName(file.name);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                <button
+                  onClick={() => setInput(SAMPLE)}
+                  className="text-xs text-cyber-300 hover:text-cyber-200 transition-colors"
+                >
+                  Load sample
+                </button>
+              </div>
             </div>
+            {uploadedName && (
+              <p className="mb-2 truncate text-[11px] text-ink-500">Loaded: {uploadedName}</p>
+            )}
+
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}

@@ -25,6 +25,8 @@ import { supabase } from "@/lib/db";
 import { classNames } from "@/lib/utils";
 import type { PageId } from "@/components/AppShell";
 
+const CHAT_STORAGE_KEY = "aegiscode.assistant.history.v1";
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -52,6 +54,7 @@ const PAGE_CONTEXT: Record<PageId, string> = {
   "supply-chain": "Supply Chain — analyze dependencies for vulnerabilities, poisoning, and blast radius",
   "reverse-engineering": "Reverse Engineering — analyze binary metadata for security-relevant findings",
   "security-graph": "Security Graph — visualize relationships between findings, dependencies, and threat intel",
+  kev: "Known Exploited Vulnerabilities — the CISA KEV catalog, ransomware-linked CVEs, and CVE-to-asset correlation against findings, dependencies and threat intel",
   "threat-intel": "Threat Intel — fuse CVE/NVD/OSV/CISA KEV/EPSS intelligence",
   drift: "Drift — detect security-relevant changes between before/after states",
   remediation: "Remediation — generate secure fixes and verify them independently",
@@ -82,12 +85,37 @@ export function AIAssistant({
   onNavigate: (page: PageId) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [restored, setRestored] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [contextData, setContextData] = useState<string>("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Chat history is persisted so it survives closing the panel, navigation,
+  // refresh and reopening the app.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setMessages(parsed as ChatMessage[]);
+      }
+    } catch {
+      /* corrupt history must never block the assistant */
+    }
+    setRestored(true);
+  }, []);
+
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-200)));
+    } catch {
+      /* storage full or unavailable */
+    }
+  }, [messages, restored]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -216,12 +244,32 @@ export function AIAssistant({
               <p className="text-[10px] text-ink-500">Connected to all features</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-ink-400 hover:text-ink-100 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {messages.length > 0 && (
+              <button
+                onClick={() => {
+                  setMessages([]);
+                  setError(null);
+                  try {
+                    localStorage.removeItem(CHAT_STORAGE_KEY);
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+                className="rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-400 transition-colors hover:text-danger"
+                title="Clear chat history"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              aria-label="Close assistant"
+              className="text-ink-400 hover:text-ink-100 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Quick actions */}

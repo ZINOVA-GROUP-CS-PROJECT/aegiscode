@@ -19,6 +19,7 @@ import { SupplyChainPage } from "@/pages/SupplyChainPage";
 import { ReverseEngineeringPage } from "@/pages/ReverseEngineeringPage";
 import { SecurityGraphPage } from "@/pages/SecurityGraphPage";
 import { ThreatIntelPage } from "@/pages/ThreatIntelPage";
+import { KevPage } from "@/pages/KevPage";
 import { DriftPage } from "@/pages/DriftPage";
 import { RemediationPage } from "@/pages/RemediationPage";
 import { ReportsPage } from "@/pages/ReportsPage";
@@ -106,6 +107,8 @@ function AppContent() {
         return <ReverseEngineeringPage />;
       case "security-graph":
         return <SecurityGraphPage />;
+      case "kev":
+        return <KevPage />;
       case "threat-intel":
         return <ThreatIntelPage />;
       case "drift":
