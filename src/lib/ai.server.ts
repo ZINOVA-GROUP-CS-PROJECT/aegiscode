@@ -434,10 +434,8 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-  "Authorization": `Bearer ${apiKey}`,
-  "HTTP-Referer": "http://localhost:3000",
-  "X-Title": "AegisCode",
+       "Authorization": `Bearer ${apiKey}`,
+       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       model: AEGIS_MODEL,
