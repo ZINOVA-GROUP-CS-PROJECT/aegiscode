@@ -47,6 +47,7 @@ interface StoredEndpoint {
 
 export function ApiSecurityPage() {
   const [input, setInput] = useState("");
+  const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [appContext, setAppContext] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
