@@ -408,7 +408,7 @@ export interface AegisEnvelope {
 export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
   const apiKey = process.env["OPENROUTER_API_KEY"];
   if (!apiKey) {
-    throw new Error("AI is not configured.");
+    throw new Error("AI is not configured. Missing OPENROUTER_API_KEY.");
   }
 
   if (!body.action || !SYSTEM_PROMPTS[body.action]) {
@@ -434,8 +434,8 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
     headers: {
-       "Authorization": `Bearer ${apiKey}`,
-       "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       model: AEGIS_MODEL,
