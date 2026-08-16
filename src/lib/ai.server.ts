@@ -406,7 +406,7 @@ export interface AegisEnvelope {
 }
 
 export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
+  const apiKey = process.env["OPENROUTER_API_KEY"];
   if (!apiKey) {
     throw new Error("AI is not configured.");
   }
@@ -434,9 +434,10 @@ export async function runAegisAI(body: AegisRequest): Promise<AegisEnvelope> {
   const response = await fetch(GATEWAY_URL, {
     method: "POST",
     headers: {
-      "Lovable-API-Key": apiKey,
-      "X-Lovable-AIG-SDK": "fetch",
       "Content-Type": "application/json",
+  "Authorization": `Bearer ${apiKey}`,
+  "HTTP-Referer": "http://localhost:3000",
+  "X-Title": "AegisCode",
     },
     body: JSON.stringify({
       model: AEGIS_MODEL,
