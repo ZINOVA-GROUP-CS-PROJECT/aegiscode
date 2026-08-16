@@ -196,7 +196,7 @@ export function AppShell({
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <span className="hidden md:inline text-xs text-ink-500 font-mono">v1.0.0</span>
+            <span className="hidden md:inline text-xs text-ink-500 font-mono">v3.7.12</span>
             <div className="hidden md:block h-6 w-px bg-ink-700/40" />
             <button
               onClick={toggleTheme}
