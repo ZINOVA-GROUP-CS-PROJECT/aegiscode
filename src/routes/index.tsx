@@ -6,6 +6,7 @@ import { AuthScreen } from "@/components/AuthScreen";
 import { LoadingSpinner } from "@/components/ui-kit";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { AnalyzePage } from "@/pages/AnalyzePage";
+import { RepoScanPage } from "@/pages/RepoScanPage";
 import { CodeSecurityPage } from "@/pages/CodeSecurityPage";
 import { ApiSecurityPage } from "@/pages/ApiSecurityPage";
 import { DastPage } from "@/pages/DastPage";
@@ -83,6 +84,8 @@ function AppContent() {
         return <DashboardPage onNavigate={setPage} />;
       case "analyze":
         return <AnalyzePage onNavigate={setPage} />;
+      case "repo-scan":
+        return <RepoScanPage />;
       case "code-security":
         return <CodeSecurityPage onNavigate={setPage} />;
       case "api-security":

@@ -35,6 +35,7 @@ import { AIAssistant } from "@/components/AIAssistant";
 export type PageId =
   | "dashboard"
   | "analyze"
+  | "repo-scan"
   | "code-security"
   | "api-security"
   | "dast"
@@ -64,6 +65,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-[18px] w-[18px]" />, group: "Overview" },
   { id: "analyze", label: "Analyze", icon: <ScanSearch className="h-[18px] w-[18px]" />, group: "Overview" },
+  { id: "repo-scan", label: "Repository Scanner", icon: <FolderSearch className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "code-security", label: "Code Security", icon: <ShieldAlert className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "api-security", label: "API Security", icon: <Plug className="h-[18px] w-[18px]" />, group: "Analysis" },
   { id: "dast", label: "DAST / Runtime", icon: <Radio className="h-[18px] w-[18px]" />, group: "Analysis" },
