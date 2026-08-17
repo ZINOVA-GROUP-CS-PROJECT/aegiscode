@@ -402,7 +402,7 @@ export function RepoScanPage() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard label="Findings" value={active.summary?.total ?? active.findings.length} accent="danger" />
                 <StatCard label="Files scanned" value={active.files_scanned} accent="cyber" />
-                <StatCard label="Lines analysed" value={active.lines_scanned.toLocaleString()} accent="steel" />
+                <StatCard label="Lines analysed" value={active.lines_scanned.toLocaleString()} accent="default" />
                 <StatCard label="Rules triggered" value={active.summary?.rules_triggered ?? 0} accent="volt" />
               </div>
 
@@ -460,7 +460,7 @@ export function RepoScanPage() {
                         </option>
                       ))}
                     </select>
-                    <Button size="sm" variant="secondary" onClick={explain} disabled={explaining || active.findings.length === 0}>
+                    <Button size="sm" variant="ghost" onClick={explain} disabled={explaining || active.findings.length === 0}>
                       {explaining ? (
                         <span className="flex items-center gap-1.5">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" /> Explaining
