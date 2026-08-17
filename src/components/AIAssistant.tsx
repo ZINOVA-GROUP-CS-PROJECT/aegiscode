@@ -42,6 +42,7 @@ interface QuickAction {
 const PAGE_CONTEXT: Record<PageId, string> = {
   dashboard: "Dashboard — overview of scans, findings, severity distribution, and accuracy metrics",
   analyze: "Analyze — paste code to run AI vulnerability detection",
+  "repo-scan": "Repository Scanner — deterministic SAST engine over a whole GitHub/GitLab repository, with commit-to-commit regression and fix verification",
   "code-security": "Code Security — browse and triage findings from scans",
   "api-security": "API Security — discover endpoints and test for broken auth, IDOR, injection and SSRF",
   dast: "DAST / Runtime — probe the live application to confirm vulnerabilities at runtime",
