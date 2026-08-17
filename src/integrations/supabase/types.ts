@@ -512,6 +512,57 @@ export type Database = {
           },
         ]
       }
+      monitored_repos: {
+        Row: {
+          auto_scan: boolean
+          baseline: Json
+          block_on: string
+          branch: string
+          created_at: string
+          id: string
+          last_commit_sha: string | null
+          last_scan_at: string | null
+          owner: string
+          provider: string
+          repo: string
+          seen_fingerprints: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_scan?: boolean
+          baseline?: Json
+          block_on?: string
+          branch?: string
+          created_at?: string
+          id?: string
+          last_commit_sha?: string | null
+          last_scan_at?: string | null
+          owner: string
+          provider?: string
+          repo: string
+          seen_fingerprints?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          auto_scan?: boolean
+          baseline?: Json
+          block_on?: string
+          branch?: string
+          created_at?: string
+          id?: string
+          last_commit_sha?: string | null
+          last_scan_at?: string | null
+          owner?: string
+          provider?: string
+          repo?: string
+          seen_fingerprints?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pr_scans: {
         Row: {
           author: string | null
@@ -615,6 +666,71 @@ export type Database = {
           },
         ]
       }
+      repo_scans: {
+        Row: {
+          commit_sha: string | null
+          created_at: string
+          engine: string
+          files_scanned: number
+          findings: Json
+          fixed_findings: Json
+          gate_status: string
+          id: string
+          lines_scanned: number
+          new_findings: Json
+          ref: string | null
+          regressed_findings: Json
+          repo_id: string | null
+          repo_label: string
+          summary: Json
+          user_id: string
+        }
+        Insert: {
+          commit_sha?: string | null
+          created_at?: string
+          engine?: string
+          files_scanned?: number
+          findings?: Json
+          fixed_findings?: Json
+          gate_status?: string
+          id?: string
+          lines_scanned?: number
+          new_findings?: Json
+          ref?: string | null
+          regressed_findings?: Json
+          repo_id?: string | null
+          repo_label: string
+          summary?: Json
+          user_id?: string
+        }
+        Update: {
+          commit_sha?: string | null
+          created_at?: string
+          engine?: string
+          files_scanned?: number
+          findings?: Json
+          fixed_findings?: Json
+          gate_status?: string
+          id?: string
+          lines_scanned?: number
+          new_findings?: Json
+          ref?: string | null
+          regressed_findings?: Json
+          repo_id?: string | null
+          repo_label?: string
+          summary?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repo_scans_repo_id_fkey"
+            columns: ["repo_id"]
+            isOneToOne: false
+            referencedRelation: "monitored_repos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           content: Json
@@ -645,6 +761,42 @@ export type Database = {
           summary?: Json
           title?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      sbom_reports: {
+        Row: {
+          component_count: number
+          components: Json
+          created_at: string
+          id: string
+          name: string
+          source: string | null
+          summary: Json
+          user_id: string
+          vulnerabilities: Json
+        }
+        Insert: {
+          component_count?: number
+          components?: Json
+          created_at?: string
+          id?: string
+          name: string
+          source?: string | null
+          summary?: Json
+          user_id?: string
+          vulnerabilities?: Json
+        }
+        Update: {
+          component_count?: number
+          components?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          source?: string | null
+          summary?: Json
+          user_id?: string
+          vulnerabilities?: Json
         }
         Relationships: []
       }
