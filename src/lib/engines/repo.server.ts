@@ -10,8 +10,8 @@ export interface RepoRef {
   provider: "github" | "gitlab";
   owner: string;
   repo: string;
-  ref?: string;
-  token?: string;
+  ref?: string | undefined;
+  token?: string | undefined;
 }
 
 export interface RepoFile {
